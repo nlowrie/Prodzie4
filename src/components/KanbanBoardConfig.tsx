@@ -470,17 +470,18 @@ export default function KanbanBoardConfig({ existingBoard }: KanbanBoardConfigPr
       toast.error('Board name is required');
       return;
     }
-
+    if (!config.workflowId) {
+      toast.error('You must assign a workflow to this backlog.');
+      return;
+    }
     if (config.columns.length === 0) {
       toast.error('At least one column is required');
       return;
     }
-
     if (config.cardFields.length === 0) {
       toast.error('At least one card field is required');
       return;
     }
-
     try {
       setSaving(true);
 
@@ -822,15 +823,16 @@ export default function KanbanBoardConfig({ existingBoard }: KanbanBoardConfigPr
 
               <div>
                 <label className="block text-sm font-medium text-gray-700">
-                  Workflow
+                  Workflow <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={config.workflowId || ''}
                   onChange={e => handleWorkflowChange(e.target.value)}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                   disabled={loading}
+                  required
                 >
-                  <option value="">No workflow</option>
+                  <option value="">Select a workflow</option>
                   {availableWorkflows.map(workflow => (
                     <option key={workflow.id} value={workflow.id}>
                       {workflow.name}
@@ -838,9 +840,9 @@ export default function KanbanBoardConfig({ existingBoard }: KanbanBoardConfigPr
                   ))}
                 </select>
                 <p className="mt-1 text-sm text-gray-500">
-                  {loading ? 'Loading workflows...' : 
-                    config.workflowId ? 'The board columns will be synchronized with the workflow statuses.' :
-                    'Select a workflow to automatically set up and synchronize board columns with workflow statuses.'}
+                  {loading
+                    ? 'Loading workflows...'
+                    : 'You must assign a workflow to this backlog. The board columns will be synchronized with the workflow statuses.'}
                 </p>
               </div>
             </div>
@@ -861,6 +863,9 @@ export default function KanbanBoardConfig({ existingBoard }: KanbanBoardConfigPr
                 Add Field
               </button>
             </div>
+            <p className="mb-4 text-sm text-gray-500">
+              Configure which fields appear on the backlog item creation form. You can add, remove, or edit fields as needed.
+            </p>
             <div className="space-y-4">
               {config.cardFields.map((field, index) => (
                 <div key={field.id} className="rounded-lg border border-gray-200 p-4">
